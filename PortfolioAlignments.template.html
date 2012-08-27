@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- Copyright (c) 2012  Rally Software Development Corp.  All rights reserved -->
+<html>
+<head>
+    <title>PortfolioAlignments</title>
+    <meta name="Name" content="App: PortfolioAlignments"/>
+    <meta name="Version" content="2012.08.27"/>
+    <meta name="Vendor" content="Rally Software"/>
+    <script type="text/javascript" src="/apps/1.28/sdk.js?debug=true"></script>
+    <script type="text/javascript" src="AlignmentSettings.js"></script>
+    <script type="text/javascript" src="PortfolioAlignments.js"></script>
+    <link rel="stylesheet" href="PortfolioAlignments.css" type="text/css">
+    <script type="text/javascript">
+
+        function onLoad() {
+            dojo.require("dojox.charting.Chart2D");
+            dojo.require("dojox.charting.action2d.Tooltip");
+            var portfolioAlignments = new PortfolioAlignments();
+            portfolioAlignments.init();
+        }
+
+        rally.addOnLoad(onLoad);
+
+    </script>
+</head>
+<body>
+<div id='app_interface'>
+    <div id='app_timebox'>
+    </div>
+</div>
+&nbsp;
+<table>
+    <tr>
+        <td>
+            <div id='type_chooser'>
+            </div>
+        </td>
+        <td colspan="2">
+            <table class="center">
+                <tr id="chart_legend_row">
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+&nbsp;
+<table>
+    <tr>
+        <th> Target <!-- ( from Settings/Preferences ) --> </th>
+        <th> Planned <!-- ( Items with a Planned End Date ) --> </th>
+        <th> Actual <!-- ( Items with an Actual End Date ) --> </th>
+    </tr>
+    <tr>
+        <td>
+            <div style="width:250px;height:250px;" id='target_pie'>
+            </div>
+        </td>
+        <td>
+            <div style="width:250px;height:250px;" id='planned_pie'>
+            </div>
+        </td>
+        <td>
+            <div style="width:250px;height:250px;" id='actual_pie'>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div id='target_table'>
+            </div>
+        </td>
+        <td>
+            <div id='planned_table'>
+            </div>
+        </td>
+        <td>
+            <div id='actual_table'>
+            </div>
+        </td>
+    </tr>
+</table>
+<div style="display:none">
+    <div id="settingsDialogDiv">
+        <div id="validationErrors" class="appMessage error"></div>
+        <table id="settingsTable" cellspacing="7">
+            <tbody id="settingsTableBody">
+            <tr class="tableHeaderRow">
+                <td id="columnNameTd">Investment Category</td>
+                <td id="planEstimateTd">Allocation <span id="units"></span></td>
+            </tr>
+            <tr>
+                <td id="addLinkCell"></td>
+            </tr>
+            </tbody>
+        </table>
+        &nbsp;
+    </div>
+</div>
+</div>
+</body>
+</html>
