@@ -30,4 +30,4 @@ If you want to include more Javascript files, simply add them to the PortfolioAl
 
 ##License
 
-rally-portfolio-alignments is released under the MIT license. See the file [LICENSE](https://raw.github.com/osulehria/rally-portfolio-alignments/master/LICENSE) for the full text.
+Portfolio Alignment is released under the MIT license. See the file [LICENSE](https://raw.github.com/osulehria/rally-portfolio-alignments/master/LICENSE) for the full text.
