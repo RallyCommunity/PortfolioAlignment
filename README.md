@@ -1,4 +1,4 @@
-rally-portfolio-alignments
+Portfolio Alignment
 ==========================
 
 ![Alt text](https://raw.github.com/osulehria/rally-portfolio-alignments/master/deploy/screenshot.png)
