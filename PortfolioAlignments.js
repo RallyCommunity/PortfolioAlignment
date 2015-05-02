@@ -1,9 +1,23 @@
+function logme(args){
+    var timestamp = "[ " + rally.sdk.util.DateTime.toIsoString( new Date()) + " ]";
+    
+    var output_args = [timestamp];
+    
+    for ( var i=0;i<arguments.length; i++ ) {
+        output_args.push(arguments[i]);
+    }
+//    output_args = Ext.Array.push(output_args, Ext.Array.slice(arguments,0));
+
+    window.console && console.log.apply(console,output_args);
+}
+
 function PortfolioAlignments() {
     var rallyDataSource = null;
     var g_sizes = null;
     var g_prefs = null;
     var g_settings = null;
 
+    var g_allowed_categories = [];
     var g_type = null;
     var g_allowed_colors = null;
 
@@ -58,13 +72,12 @@ function PortfolioAlignments() {
 
     var processAllowedValues = function (results) {
         g_sizes = {};
-        var allowed_values = [];
         for (var a = 0; a < results.attributes[0].Attributes.length; a++) {
             if (results.attributes[0].Attributes[a].ElementName == "InvestmentCategory") {
-                allowed_values = results.attributes[0].Attributes[a].AllowedValues;
-                var ratio = Math.round(100 / ( allowed_values.length - 1 ));
-                for (var v = 0; v < allowed_values.length; v++) {
-                    var allowed_value = allowed_values[v];
+                g_allowed_categories = results.attributes[0].Attributes[a].AllowedValues;
+                var ratio = Math.round(100 / ( g_allowed_categories.length - 1 ));
+                for (var v = 0; v < g_allowed_categories.length; v++) {
+                    var allowed_value = g_allowed_categories[v];
                     if (allowed_value.StringValue) {
                         g_sizes[ allowed_value.StringValue ] = ratio;
                     }
@@ -72,12 +85,12 @@ function PortfolioAlignments() {
             }
         }
         // set base colors
-        setBaseColors(allowed_values);
+        setBaseColors(g_allowed_categories);
         rallyDataSource.preferences.getAppPreferences(processPreferences);
     };
 
     var processPreferences = function (results) {
-        console.log("processPreferences");
+        logme("processPreferences");
         if (results.length) {
             g_prefs = results;
             g_sizes = {};
@@ -89,7 +102,7 @@ function PortfolioAlignments() {
     };
 
     var doQuery = function () {
-        console.log("doQuery");
+        logme("doQuery");
         var queryArray = [];
 
         var pi_query = '( PlannedEndDate > "1967-01-09" )';
@@ -112,7 +125,7 @@ function PortfolioAlignments() {
     };
 
     var calculateValues = function (results) {
-        console.log("calculateValues");
+        logme("calculateValues");
         var target_items = [];
         var planned_items = [];
         var actual_items = [];
@@ -214,7 +227,7 @@ function PortfolioAlignments() {
     };
 
     var makeDojoPie = function (items, div_id, title) {
-        console.log("makeDojoPie");
+        logme("makeDojoPie",items);
         dojo.empty(dojo.byId(div_id));
         var pie = null;
         if (items.length === 0 || ( items.length == 1 && items[0]._EstimateValue === 0 )) {
@@ -238,18 +251,28 @@ function PortfolioAlignments() {
                     values[ category ]._EstimateRatio += items[tc]._EstimateRatio;
                 }
             }
-
+            logme("values:",values);
+            
             var data = [];
             g_data_sets[title] = {};
             var i = 0;
             for (var val in values) {
                 if (values.hasOwnProperty(val)) {
-                    data.push({ x: i, y: values[val]._EstimateRatio, color: g_allowed_colors[ values[val].InvestmentCategory ], title: title, tooltip: values[val].InvestmentCategory, category: values[val].InvestmentCategory });
+                    data.push({ 
+                        x: i, 
+                        y: values[val]._EstimateRatio, 
+                        color: g_allowed_colors[ values[val].InvestmentCategory ] || '#fff', 
+                        title: title, 
+                        tooltip: values[val].InvestmentCategory, 
+                        category: values[val].InvestmentCategory 
+                    });
                     // hold the percentage globally for the tooltip
                     g_data_sets[title][ values[val].InvestmentCategory ] = Math.round(10 * values[val]._EstimateRatio) / 10;
                     i++;
                 }
             }
+            logme("data:",data);
+            
             var pie_config = { type: "Pie",
                 fontColor: "black",
                 labelOffset: -20,
@@ -328,7 +351,8 @@ function PortfolioAlignments() {
 
     var showSettings = function () {
         if (!g_settings) {
-            g_settings = new AlignmentSettings(rallyDataSource, g_sizes, g_prefs);
+            logme("Launching settings with: ", g_allowed_categories, g_prefs);
+            g_settings = new AlignmentSettings(rallyDataSource, g_allowed_categories, g_prefs);
             g_settings.display();
         } else {
             g_settings.show();
@@ -336,16 +360,16 @@ function PortfolioAlignments() {
     };
 
     // set base colors
-    var setBaseColors = function (allowed_values) {
+    var setBaseColors = function (g_allowed_categories) {
         g_allowed_colors = {};
         var color_array = [ "#b5d8eb", "#b2e3b6", "#fbde98", "#fcb5b1",
             "#5c9acb", "#6ab17d", "#d9af4b", "#f47168",
             "#196c89", "#3a874f", "#e5d038", "#e57e3a",
             "#ef3f35" ];
 
-        for (var av = 0; av < allowed_values.length; av++) {
-            if (color_array[av] && allowed_values[av].StringValue) {
-                g_allowed_colors[ allowed_values[av].StringValue] = color_array[av];
+        for (var av = 0; av < g_allowed_categories.length; av++) {
+            if (color_array[av] && g_allowed_categories[av].StringValue) {
+                g_allowed_colors[ g_allowed_categories[av].StringValue] = color_array[av];
             }
         }
         g_allowed_colors.None = "#747474";
