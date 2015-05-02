@@ -1,7 +1,7 @@
 Portfolio Alignment
 ==========================
 
-![Alt text](https://raw.github.com/osulehria/rally-portfolio-alignments/master/deploy/screenshot.png)
+![Screen shot](./deploy/screenshot.png)
 
 ##Overview
 

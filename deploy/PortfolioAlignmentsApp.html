@@ -1,11 +1,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<!-- Copyright (c) 2012  Rally Software Development Corp.  All rights reserved -->
+<!-- Copyright (c) 2012-2015  Rally Software Development Corp.  All rights reserved -->
 <html>
 <head>
     <title>PortfolioAlignments</title>
     <meta name="Name" content="App: PortfolioAlignments"/>
-    <meta name="Version" content="2012.08.27"/>
-    <meta name="Vendor" content="Rally Software"/>
+    <meta name="Version" content="2012.08.28"/>
+    <meta name="Vendor" content="Rally Software:Tech Services (Unsupported)"/>
     <script type="text/javascript" src="/apps/1.28/sdk.js?debug=true"></script>
 
     <script type="text/javascript">
@@ -291,7 +291,20 @@
                 that._retrievePreferences(createForm);
             };
         };
-    function PortfolioAlignments() {
+    function logme(args){
+            var timestamp = "[ " + rally.sdk.util.DateTime.toIsoString( new Date()) + " ]";
+            
+            var output_args = [timestamp];
+            
+            for ( var i=0;i<arguments.length; i++ ) {
+                output_args.push(arguments[i]);
+            }
+        //    output_args = Ext.Array.push(output_args, Ext.Array.slice(arguments,0));
+        
+            window.console && console.log.apply(console,output_args);
+        }
+        
+        function PortfolioAlignments() {
             var rallyDataSource = null;
             var g_sizes = null;
             var g_prefs = null;
@@ -370,7 +383,7 @@
             };
         
             var processPreferences = function (results) {
-                console.log("processPreferences");
+                logme("processPreferences");
                 if (results.length) {
                     g_prefs = results;
                     g_sizes = {};
@@ -382,7 +395,7 @@
             };
         
             var doQuery = function () {
-                console.log("doQuery");
+                logme("doQuery");
                 var queryArray = [];
         
                 var pi_query = '( PlannedEndDate > "1967-01-09" )';
@@ -405,7 +418,7 @@
             };
         
             var calculateValues = function (results) {
-                console.log("calculateValues");
+                logme("calculateValues");
                 var target_items = [];
                 var planned_items = [];
                 var actual_items = [];
@@ -507,7 +520,7 @@
             };
         
             var makeDojoPie = function (items, div_id, title) {
-                console.log("makeDojoPie");
+                logme("makeDojoPie",items);
                 dojo.empty(dojo.byId(div_id));
                 var pie = null;
                 if (items.length === 0 || ( items.length == 1 && items[0]._EstimateValue === 0 )) {
@@ -531,18 +544,28 @@
                             values[ category ]._EstimateRatio += items[tc]._EstimateRatio;
                         }
                     }
-        
+                    logme("values:",values);
+                    
                     var data = [];
                     g_data_sets[title] = {};
                     var i = 0;
                     for (var val in values) {
                         if (values.hasOwnProperty(val)) {
-                            data.push({ x: i, y: values[val]._EstimateRatio, color: g_allowed_colors[ values[val].InvestmentCategory ], title: title, tooltip: values[val].InvestmentCategory, category: values[val].InvestmentCategory });
+                            data.push({ 
+                                x: i, 
+                                y: values[val]._EstimateRatio, 
+                                color: g_allowed_colors[ values[val].InvestmentCategory ] || '#fff', 
+                                title: title, 
+                                tooltip: values[val].InvestmentCategory, 
+                                category: values[val].InvestmentCategory 
+                            });
                             // hold the percentage globally for the tooltip
                             g_data_sets[title][ values[val].InvestmentCategory ] = Math.round(10 * values[val]._EstimateRatio) / 10;
                             i++;
                         }
                     }
+                    logme("data:",data);
+                    
                     var pie_config = { type: "Pie",
                         fontColor: "black",
                         labelOffset: -20,

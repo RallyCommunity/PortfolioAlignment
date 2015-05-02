@@ -1,3 +1,16 @@
+function logme(args){
+    var timestamp = "[ " + rally.sdk.util.DateTime.toIsoString( new Date()) + " ]";
+    
+    var output_args = [timestamp];
+    
+    for ( var i=0;i<arguments.length; i++ ) {
+        output_args.push(arguments[i]);
+    }
+//    output_args = Ext.Array.push(output_args, Ext.Array.slice(arguments,0));
+
+    window.console && console.log.apply(console,output_args);
+}
+
 function PortfolioAlignments() {
     var rallyDataSource = null;
     var g_sizes = null;
@@ -77,7 +90,7 @@ function PortfolioAlignments() {
     };
 
     var processPreferences = function (results) {
-        console.log("processPreferences");
+        logme("processPreferences");
         if (results.length) {
             g_prefs = results;
             g_sizes = {};
@@ -89,7 +102,7 @@ function PortfolioAlignments() {
     };
 
     var doQuery = function () {
-        console.log("doQuery");
+        logme("doQuery");
         var queryArray = [];
 
         var pi_query = '( PlannedEndDate > "1967-01-09" )';
@@ -112,7 +125,7 @@ function PortfolioAlignments() {
     };
 
     var calculateValues = function (results) {
-        console.log("calculateValues");
+        logme("calculateValues");
         var target_items = [];
         var planned_items = [];
         var actual_items = [];
@@ -214,7 +227,7 @@ function PortfolioAlignments() {
     };
 
     var makeDojoPie = function (items, div_id, title) {
-        console.log("makeDojoPie");
+        logme("makeDojoPie",items);
         dojo.empty(dojo.byId(div_id));
         var pie = null;
         if (items.length === 0 || ( items.length == 1 && items[0]._EstimateValue === 0 )) {
@@ -238,18 +251,28 @@ function PortfolioAlignments() {
                     values[ category ]._EstimateRatio += items[tc]._EstimateRatio;
                 }
             }
-
+            logme("values:",values);
+            
             var data = [];
             g_data_sets[title] = {};
             var i = 0;
             for (var val in values) {
                 if (values.hasOwnProperty(val)) {
-                    data.push({ x: i, y: values[val]._EstimateRatio, color: g_allowed_colors[ values[val].InvestmentCategory ], title: title, tooltip: values[val].InvestmentCategory, category: values[val].InvestmentCategory });
+                    data.push({ 
+                        x: i, 
+                        y: values[val]._EstimateRatio, 
+                        color: g_allowed_colors[ values[val].InvestmentCategory ] || '#fff', 
+                        title: title, 
+                        tooltip: values[val].InvestmentCategory, 
+                        category: values[val].InvestmentCategory 
+                    });
                     // hold the percentage globally for the tooltip
                     g_data_sets[title][ values[val].InvestmentCategory ] = Math.round(10 * values[val]._EstimateRatio) / 10;
                     i++;
                 }
             }
+            logme("data:",data);
+            
             var pie_config = { type: "Pie",
                 fontColor: "black",
                 labelOffset: -20,
