@@ -7,6 +7,17 @@ Portfolio Alignment
 
 This is a Rally SDK app that shows pie charts for Target, Planned, and Actual for a particular type (think Strategy, Theme, Initiative, Enhancement, etc). You can hover over to see more information about each pie slice such as the name, target goal, and amount planned. There is also a handy color-coded guide on the top that gives a key to all of the pie slices.
 
+## Notes
+
+* If the target pie has one or more white slices, then the target settings include values for Investment Category that no longer exist.
+
+The pie values are determined this way:
+
+* Target Pie:  A distribution of the investment categories as selected in settings.  If no settings were saved, the chart assumes even distribution.
+* Planned Pie: A distribution of the preliminary estimates of portfolio items in each category THAT HAVE A PLANNED END DATE (items without a preliminary estimate are scored as 0).
+* Actual Pie:  A distribution of the preliminary estimates of portfolio items in each category THAT HAVE AN ACTUAL END DATE (items without a preliminary estimate are scored as 0).
+
+        
 ##How to Use
 
 If you want to start using the app immediately, create an Custom HTML app on your Rally dashboard. Then copy PortfolioAlignmentsApp.html from the deploy folder into the HTML text area. That's it, it should be ready to use.
