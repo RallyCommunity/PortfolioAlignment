@@ -1,5 +1,5 @@
 // TODO: Make so this works externally!
-AlignmentSettings = function(rallyDataSource, sizes, prefs) {
+AlignmentSettings = function(rallyDataSource, allowed_values, prefs) {
     rally.sdk.ComponentBase.call(this);
 
     var that = this;
@@ -24,7 +24,7 @@ AlignmentSettings = function(rallyDataSource, sizes, prefs) {
     };
 
     that._getValues = function() {
-        console.log( "_getValues" );
+        logme( "_getValues" );
         var values = {fieldInfos:{}, otherSettings: {} };
         rally.forEach(accessors, function(value) {
             values.fieldInfos[value.field] = value.get();
@@ -92,7 +92,7 @@ AlignmentSettings = function(rallyDataSource, sizes, prefs) {
     };
 
     that._addControlToRow = function(row, divId, control, containerCss) {
-        console.log( "_addControlToRow " );
+        logme( "_addControlToRow " );
         var td = document.createElement("td");
         var div = document.createElement("div");
         dojo.addClass(div, containerCss);
@@ -208,23 +208,37 @@ AlignmentSettings = function(rallyDataSource, sizes, prefs) {
     };
 
     that._setPreferenceValues = function(values) {
-        console.log( "_setPreferenceValues" );
+        logme( "_setPreferenceValues" );
+        var existing_values = values.fieldInfos;
+        logme("  Existing:", existing_values);
+        
         sizesObject = {};
-        rally.forEach(values.fieldInfos, function(size) {
-            sizesObject[size.label] = {ratio: size.investmentCategory, investmentCategory: size.label};
+        rally.forEach(allowed_values, function(allowed_value){
+            var category = allowed_value.StringValue || "None";
+            logme("Allowed:", category);
+            if ( existing_values[category] && existing_values[category].label ) {
+                var label = existing_values[category].label;
+                var size = existing_values[category].investmentCategory;
+                
+                sizesObject[label] = {ratio: size, investmentCategory: label};
+            } else {
+                sizesObject[category] = {ratio: 0, investmentCategory: category};
+            }
         });
+
     };
 
     that._setDefaultValues = function() {
-        console.log( "this._setDefaultValues" );
+        logme( "_setDefaultValues", allowed_values.length);
         sizesObject = {};
-        rally.forEach(sizes, function(sizeValue, sizeKey) {
-            sizesObject[sizeKey] = {ratio: sizeValue, investmentCategory: sizeKey};
+        rally.forEach(allowed_values, function(allowed_value) {
+            var category = allowed_value.StringValue || "None";
+            sizesObject[category] = {ratio: parseInt(100/(allowed_values.length-1), 10), investmentCategory: category};
         });
     };
 
     that._retrievePreferences = function(/*function*/callback) {
-        console.log( "retrievePreferences");
+        logme( "retrievePreferences");
         var projectPref;
         if (prefs && prefs.length) {
             dojo.forEach(prefs, function(p) {
@@ -261,7 +275,7 @@ AlignmentSettings = function(rallyDataSource, sizes, prefs) {
 
     that.display = function() {
         function createForm() {
-            console.log( "createForm" );
+            logme( "createForm" );
             accessors = [];
             var rowArr = [];
 

@@ -17,6 +17,7 @@ function PortfolioAlignments() {
     var g_prefs = null;
     var g_settings = null;
 
+    var g_allowed_categories = [];
     var g_type = null;
     var g_allowed_colors = null;
 
@@ -71,13 +72,12 @@ function PortfolioAlignments() {
 
     var processAllowedValues = function (results) {
         g_sizes = {};
-        var allowed_values = [];
         for (var a = 0; a < results.attributes[0].Attributes.length; a++) {
             if (results.attributes[0].Attributes[a].ElementName == "InvestmentCategory") {
-                allowed_values = results.attributes[0].Attributes[a].AllowedValues;
-                var ratio = Math.round(100 / ( allowed_values.length - 1 ));
-                for (var v = 0; v < allowed_values.length; v++) {
-                    var allowed_value = allowed_values[v];
+                g_allowed_categories = results.attributes[0].Attributes[a].AllowedValues;
+                var ratio = Math.round(100 / ( g_allowed_categories.length - 1 ));
+                for (var v = 0; v < g_allowed_categories.length; v++) {
+                    var allowed_value = g_allowed_categories[v];
                     if (allowed_value.StringValue) {
                         g_sizes[ allowed_value.StringValue ] = ratio;
                     }
@@ -85,7 +85,7 @@ function PortfolioAlignments() {
             }
         }
         // set base colors
-        setBaseColors(allowed_values);
+        setBaseColors(g_allowed_categories);
         rallyDataSource.preferences.getAppPreferences(processPreferences);
     };
 
@@ -351,8 +351,8 @@ function PortfolioAlignments() {
 
     var showSettings = function () {
         if (!g_settings) {
-            logme("Launching settings with: ", g_sizes, g_prefs);
-            g_settings = new AlignmentSettings(rallyDataSource, g_sizes, g_prefs);
+            logme("Launching settings with: ", g_allowed_categories, g_prefs);
+            g_settings = new AlignmentSettings(rallyDataSource, g_allowed_categories, g_prefs);
             g_settings.display();
         } else {
             g_settings.show();
@@ -360,16 +360,16 @@ function PortfolioAlignments() {
     };
 
     // set base colors
-    var setBaseColors = function (allowed_values) {
+    var setBaseColors = function (g_allowed_categories) {
         g_allowed_colors = {};
         var color_array = [ "#b5d8eb", "#b2e3b6", "#fbde98", "#fcb5b1",
             "#5c9acb", "#6ab17d", "#d9af4b", "#f47168",
             "#196c89", "#3a874f", "#e5d038", "#e57e3a",
             "#ef3f35" ];
 
-        for (var av = 0; av < allowed_values.length; av++) {
-            if (color_array[av] && allowed_values[av].StringValue) {
-                g_allowed_colors[ allowed_values[av].StringValue] = color_array[av];
+        for (var av = 0; av < g_allowed_categories.length; av++) {
+            if (color_array[av] && g_allowed_categories[av].StringValue) {
+                g_allowed_colors[ g_allowed_categories[av].StringValue] = color_array[av];
             }
         }
         g_allowed_colors.None = "#747474";

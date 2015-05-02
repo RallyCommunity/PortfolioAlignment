@@ -10,7 +10,7 @@
 
     <script type="text/javascript">
     // TODO: Make so this works externally!
-        AlignmentSettings = function(rallyDataSource, sizes, prefs) {
+        AlignmentSettings = function(rallyDataSource, allowed_values, prefs) {
             rally.sdk.ComponentBase.call(this);
         
             var that = this;
@@ -35,7 +35,7 @@
             };
         
             that._getValues = function() {
-                console.log( "_getValues" );
+                logme( "_getValues" );
                 var values = {fieldInfos:{}, otherSettings: {} };
                 rally.forEach(accessors, function(value) {
                     values.fieldInfos[value.field] = value.get();
@@ -103,7 +103,7 @@
             };
         
             that._addControlToRow = function(row, divId, control, containerCss) {
-                console.log( "_addControlToRow " );
+                logme( "_addControlToRow " );
                 var td = document.createElement("td");
                 var div = document.createElement("div");
                 dojo.addClass(div, containerCss);
@@ -219,23 +219,37 @@
             };
         
             that._setPreferenceValues = function(values) {
-                console.log( "_setPreferenceValues" );
+                logme( "_setPreferenceValues" );
+                var existing_values = values.fieldInfos;
+                logme("  Existing:", existing_values);
+                
                 sizesObject = {};
-                rally.forEach(values.fieldInfos, function(size) {
-                    sizesObject[size.label] = {ratio: size.investmentCategory, investmentCategory: size.label};
+                rally.forEach(allowed_values, function(allowed_value){
+                    var category = allowed_value.StringValue || "None";
+                    logme("Allowed:", category);
+                    if ( existing_values[category] && existing_values[category].label ) {
+                        var label = existing_values[category].label;
+                        var size = existing_values[category].investmentCategory;
+                        
+                        sizesObject[label] = {ratio: size, investmentCategory: label};
+                    } else {
+                        sizesObject[category] = {ratio: 0, investmentCategory: category};
+                    }
                 });
+        
             };
         
             that._setDefaultValues = function() {
-                console.log( "this._setDefaultValues" );
+                logme( "_setDefaultValues", allowed_values.length);
                 sizesObject = {};
-                rally.forEach(sizes, function(sizeValue, sizeKey) {
-                    sizesObject[sizeKey] = {ratio: sizeValue, investmentCategory: sizeKey};
+                rally.forEach(allowed_values, function(allowed_value) {
+                    var category = allowed_value.StringValue || "None";
+                    sizesObject[category] = {ratio: parseInt(100/(allowed_values.length-1), 10), investmentCategory: category};
                 });
             };
         
             that._retrievePreferences = function(/*function*/callback) {
-                console.log( "retrievePreferences");
+                logme( "retrievePreferences");
                 var projectPref;
                 if (prefs && prefs.length) {
                     dojo.forEach(prefs, function(p) {
@@ -272,7 +286,7 @@
         
             that.display = function() {
                 function createForm() {
-                    console.log( "createForm" );
+                    logme( "createForm" );
                     accessors = [];
                     var rowArr = [];
         
@@ -310,6 +324,7 @@
             var g_prefs = null;
             var g_settings = null;
         
+            var g_allowed_categories = [];
             var g_type = null;
             var g_allowed_colors = null;
         
@@ -364,13 +379,12 @@
         
             var processAllowedValues = function (results) {
                 g_sizes = {};
-                var allowed_values = [];
                 for (var a = 0; a < results.attributes[0].Attributes.length; a++) {
                     if (results.attributes[0].Attributes[a].ElementName == "InvestmentCategory") {
-                        allowed_values = results.attributes[0].Attributes[a].AllowedValues;
-                        var ratio = Math.round(100 / ( allowed_values.length - 1 ));
-                        for (var v = 0; v < allowed_values.length; v++) {
-                            var allowed_value = allowed_values[v];
+                        g_allowed_categories = results.attributes[0].Attributes[a].AllowedValues;
+                        var ratio = Math.round(100 / ( g_allowed_categories.length - 1 ));
+                        for (var v = 0; v < g_allowed_categories.length; v++) {
+                            var allowed_value = g_allowed_categories[v];
                             if (allowed_value.StringValue) {
                                 g_sizes[ allowed_value.StringValue ] = ratio;
                             }
@@ -378,7 +392,7 @@
                     }
                 }
                 // set base colors
-                setBaseColors(allowed_values);
+                setBaseColors(g_allowed_categories);
                 rallyDataSource.preferences.getAppPreferences(processPreferences);
             };
         
@@ -644,7 +658,8 @@
         
             var showSettings = function () {
                 if (!g_settings) {
-                    g_settings = new AlignmentSettings(rallyDataSource, g_sizes, g_prefs);
+                    logme("Launching settings with: ", g_allowed_categories, g_prefs);
+                    g_settings = new AlignmentSettings(rallyDataSource, g_allowed_categories, g_prefs);
                     g_settings.display();
                 } else {
                     g_settings.show();
@@ -652,16 +667,16 @@
             };
         
             // set base colors
-            var setBaseColors = function (allowed_values) {
+            var setBaseColors = function (g_allowed_categories) {
                 g_allowed_colors = {};
                 var color_array = [ "#b5d8eb", "#b2e3b6", "#fbde98", "#fcb5b1",
                     "#5c9acb", "#6ab17d", "#d9af4b", "#f47168",
                     "#196c89", "#3a874f", "#e5d038", "#e57e3a",
                     "#ef3f35" ];
         
-                for (var av = 0; av < allowed_values.length; av++) {
-                    if (color_array[av] && allowed_values[av].StringValue) {
-                        g_allowed_colors[ allowed_values[av].StringValue] = color_array[av];
+                for (var av = 0; av < g_allowed_categories.length; av++) {
+                    if (color_array[av] && g_allowed_categories[av].StringValue) {
+                        g_allowed_colors[ g_allowed_categories[av].StringValue] = color_array[av];
                     }
                 }
                 g_allowed_colors.None = "#747474";
