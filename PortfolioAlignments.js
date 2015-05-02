@@ -351,6 +351,7 @@ function PortfolioAlignments() {
 
     var showSettings = function () {
         if (!g_settings) {
+            logme("Launching settings with: ", g_sizes, g_prefs);
             g_settings = new AlignmentSettings(rallyDataSource, g_sizes, g_prefs);
             g_settings.display();
         } else {
