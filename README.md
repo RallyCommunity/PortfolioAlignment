@@ -13,10 +13,14 @@ This is a Rally SDK app that shows pie charts for Target, Planned, and Actual fo
 
 The pie values are determined this way:
 
-* Target Pie:  A distribution of the investment categories as selected in settings.  If no settings were saved, the chart assumes even distribution.
-* Planned Pie: A distribution of the preliminary estimates of portfolio items in each category THAT HAVE A PLANNED END DATE (items without a preliminary estimate are scored as 0).
-* Actual Pie:  A distribution of the preliminary estimates of portfolio items in each category THAT HAVE AN ACTUAL END DATE (items without a preliminary estimate are scored as 0).
+* Target:  A distribution of the investment categories as selected in settings.  If no settings were saved, the chart assumes even distribution.
 
+* Planned: A distribution of the preliminary estimates of portfolio items in each category that have a PLANNED END DATE (items without a preliminary estimate are scored as 0).
+* Actual:  A distribution of the preliminary estimates of portfolio items in each category that have an ACTUAL END DATE (items without a preliminary estimate are scored as 0).  If there 
+               is work that is planned but not completed, those portfolio items are shown on the pie consolidated as grey. 
+                   
+    In the screenshot above, the Actual pie is showing that of all the portfolio items that have a planned end date, 71.9% are not yet completed and 9.4% are completed AND in the Differentiate investment category.
+    
         
 ##How to Use
 
